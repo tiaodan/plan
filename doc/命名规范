@@ -1,0 +1,23 @@
+1. 全局变量
+1）全部大写，多个单词用_下划线隔开，如需要阻止导入模块内的全局变量，可以加一个前导下划线，GLOBAL_VAR_NAME，_GLOBAL_VAL
+2）常量和全局变量命名规范相同
+
+2. 方法 method_name
+1）同函数，小写 + 下划线
+
+3. 变量 var_name
+1）变量名一般小写，多个单词用_下划线隔开，同函数命名
+2）私有类成员使用单一下划线前缀标识
+3）变量名不应该带有类型信息，如num_list,ani_dict等
+
+4. 类 ClassName
+总是使用首字母大写单词串，如MyClass(CamelCase驼峰命名)
+class Person():
+    pass
+class Elc_Car(Car):
+    pass
+class _PrivateCar(Car):
+    pass
+
+5. 包 package_name
+应该是简短的、小写的名字，如果下划线可以改善可读性可以加入，如mypackage

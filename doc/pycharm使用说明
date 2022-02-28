@@ -1,0 +1,4 @@
+1. 更换项目虚拟环境
+1）点击左上角File --> Setting --> Project:xxx --> Project Interpreter
+2）选中下拉箭头 --> show all --> 点击+号
+3）选择项目里的虚拟环境

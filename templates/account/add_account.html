@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>添加账号</title>
+    <link rel="stylesheet" href="static/lib/layui/css/layui.css">
+</head>
+<body>
+    <!-- 自定义模块 start -->
+    <span hidden id="addBar">
+        <button class="layui-btn layui-btn-sm" lay-event="add">添加</button>
+    </span>
+    <!-- 自定义模块 end -->
+    <table id="add_account" lay-filter="add_account"></table>
+
+    <script src="static/lib/layui/layui.js"></script>
+    <script>
+        var $ = layui.$;
+        layui.use('table', function () {
+            var table = layui.table;
+
+            table.render({
+                elem: '#add_account',
+                url: 'static/json/add_account.json',
+                toolbar: '#addBar',
+                defaultToolbar: ['filter'],
+                cols:[[
+                    {checkbox: true, fixed: 'left'},
+                    // {field: 'id', title: 'id'},
+                    {field: 'type', title: '账号类型', sort:true, edit: true},
+                    {field: 'sitename', title: '网站名称', sort:true, edit: true},
+                    {field: 'sitetype', title: '网站类型', sort:true, edit: true},
+                    {field: 'url', title: 'url', sort:true, edit: true},
+                    {field: 'username', title: '用户名', sort:true, edit: true},
+                    {field: 'initpw', title: '初始密码', sort:true, edit: true},
+                    {field: 'newpw', title: '最新密码', sort:true, edit: true},
+                    {field: 'email', title: '邮箱', sort:true, edit: true},
+                    {field: 'phone', title: '手机', sort:true, edit: true},
+                    {field: 'QRcode', title: '二维码', sort:true, edit: true},
+                    {field: 'key', title: 'key', sort:true, edit: true},
+                    {field: 'pwrules', title: '密码规则', sort:true, edit: true},
+                    {field: 'safequestion', title: '安全问题', sort:true, edit: true},
+                    {field: 'safeanswer', title: '安全答案', sort:true, edit: true},
+                    {field: 'createtime', title: '创建时间', sort:true, edit: true},
+                    {field: 'updatetime', title: '更新时间', sort:true, edit: true},
+                    {field: 'isuseful', title: '可用？', sort:true, edit: true},
+                    {field: 'remark', title: '备注', sort:true, edit: true},
+				]]
+            });
+
+            //按钮监听
+            table.on('toolbar(add_account)', function (obj) {  // totlbar里引用的是lay-filter
+                var checkStatus = table.checkStatus(obj.config.id);
+                switch(obj.event){
+                    case 'add':
+                        layer.msg('点击了add');
+                        // 1. 获取添加的数据
+                        var data = checkStatus.data[0];
+                        console.log('data ==', data);
+                        // ajax插入后台数据,post
+                        $.ajax({
+                            type: 'post', //请求方法
+                            url: '/add_account',
+                            data: {
+                                // id: data.id,
+                                type: data.type,
+                                sitename: data.sitename,
+                                sitetype: data.sitetype,
+                                url: data.url,
+                                username: data.username,
+                                initpw: data.initpw,
+                                newpw: data.newpw,
+                                email: data.email,
+                                phone: data.phone,
+                                QRcode: data.QRcode,
+                                key: data.key,
+                                pwrules: data.pwrules,
+                                safequestion: data.safequestion,
+                                safeanswer: data.safeanswer,
+                                createtime: data.createtime,
+                                updatetime: data.updatetime,
+                                isuseful: data.isuseful,
+                                remark: data.remark
+                            },
+                            datatype: 'json'
+                        });
+                        break;
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>

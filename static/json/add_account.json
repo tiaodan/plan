@@ -1,0 +1,26 @@
+{
+    "code": 0
+    ,"msg": "add_account"
+    ,"count": 1
+    ,"data": [{
+        "id": ""
+        ,"type": ""
+        ,"sitename": ""
+        ,"sitetype": ""
+        ,"url": ""
+        ,"username": ""
+        ,"initpw": ""
+        ,"newpw": ""
+        ,"email": ""
+        ,"phone": ""
+        ,"QRcode": ""
+        ,"key": ""
+        ,"pwrules": ""
+        ,"safequestion": ""
+        ,"safeanswer": ""
+        ,"createtime": ""
+        ,"updatetime": ""
+        ,"isuseful": ""
+        ,"remark": ""
+    }]
+}

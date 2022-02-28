@@ -1,0 +1,47 @@
+1. 插入account sql语句加上on duplicate key 部分
+2. 统计一个网址有多少资源是可用的，共有多少
+3. 网站支持设置是否自动播放
+4. 我的网站看到可用资源都很少的时候，考虑将资源下载下来，硬盘存储
+5. 自动播放 浏览器禁用问题
+6. lxml 获取内容规则
+7. 网站国际化，可用适配简体繁体、英语
+
+//// 自动爬取框架，提取通用内容
+1. util --》 启动多少线程， 方法（业务逻辑方法，启用多少线程，每个线程休眠时间）
+2. 业务逻辑，通用，执行数据库、ORM、创建数据库、用同一个conn连接、返回数据、返回默认数据、
+前端显示（用户选音乐类、书籍类，弄一个模板）、通用数据库模板（用户选择音乐类、书籍类、弄一个模板）
+
+0. 设计数据库都有什么字段 √
+0. html 有按钮控制，是否启动线程
+1, utils 创建线程
+2. 线程爬取章节的音频文件，存储到数据库
+3. 界面自动获取所有书的音频文件，可在线收听
+4. 弄一个util方法, 实现lxml 爬取内容时，传入一个lxml规则+ 爬出来的url是否带网站前缀
+
+
+////////////报错未处理，爬取完历史主题的内容
+audiobook 项目
+dbutils sql ===   insert into audiobook(name,traditional_name,url,typeid,type,countryid,country,processid,process,websiteid,website,reader,brief,total_chapter,cover_photo_url,hits,release_date,last_update_date,update_to_chapter,spider_status) values(%(name)s,%(traditional_name)s,%(url)s,%(typeid)s,%(type)s,%(countryid)s,%(country)s,%(processid)s,%(process)s,%(websiteid)s,%(website)s,%(reader)s,%(brief)s,%(total_chapter)s,%(cover_photo_url)s,%(hits)s,%(release_date)s,%(last_update_date)s,%(update_to_chapter)s,%(spider_status)s) on duplicate key update name=%(name)s,traditional_name=%(traditional_name)s,url=%(url)s,typeid=%(typeid)s,type=%(type)s,countryid=%(countryid)s,country=%(country)s,processid=%(processid)s,process=%(process)s,websiteid=%(websiteid)s,website=%(website)s,reader=%(reader)s,brief=%(brief)s,total_chapter=%(total_chapter)s,cover_photo_url=%(cover_photo_url)s,hits=%(hits)s,release_date=%(release_date)s,last_update_date=%(last_update_date)s,update_to_chapter=%(update_to_chapter)s,spider_status=%(spider_status)s
+dbutils values ===   {'name': '袁腾飞讲第一次世界大战', 'traditional_name': '袁騰飛講第一次世界大戰', 'url': '/show/131.html', 'typeid': 10, 'type': '历史', 'countryid': 1, 'country': '其它', 'processid': 1, 'process': '其它', 'websiteid': 1, 'website': '其它', 'alias': '', 'author': '', 'reader': ' 袁腾飞', 'brief': '袁腾飞讲第一次世界大战作者：袁腾飞，由袁腾飞播音，听书网有声小说提供收听平台，欢迎你到本站收听节目，本站不间断收录最新小说，希望你能喜欢！', 'is_for_adult': '', 'score': '', 'total_chapter': 0, 'cover_photo_url': '/uploads/allimg/191023/386927d6869d8c6f.jpg', 'cover_photo_savepath': '', 'hits': 0, 'release_date': '2022-01-06', 'last_update_date': '2022-01-06', 'update_to_chapter': 0, 'spider_status': 0}
+爬取完成-》 休眠 10 https://www.tingbook.cc/book/9-46.html
+每个请求后加个延时 = 0秒
+尾页号码=  /book/10-9.html
+127.0.0.1 - - [06/Jan/2022 17:09:03] "POST /audiobook HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\A_software\C_wokspace\python\plan\venv\Lib\site-packages\flask\app.py", line 2091, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\A_software\C_wokspace\python\plan\venv\Lib\site-packages\flask\app.py", line 2076, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\A_software\C_wokspace\python\plan\venv\Lib\site-packages\flask\app.py", line 2073, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\A_software\C_wokspace\python\plan\venv\Lib\site-packages\flask\app.py", line 1518, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\A_software\C_wokspace\python\plan\venv\Lib\site-packages\flask\app.py", line 1516, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\A_software\C_wokspace\python\plan\venv\Lib\site-packages\flask\app.py", line 1502, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "C:\A_software\C_wokspace\python\plan\app.py", line 684, in interface_audiobook
+    audiobook.spider_audiobook('https://www.tingbook.cc/book/10.html', category_dict, 10)  # 军事
+  File "C:\A_software\C_wokspace\python\plan\controller\audiobook.py", line 419, in spider_audiobook
+    categoryid = int(util.get_list_from_str_by_regexp(r'/(\d)-', endpage_url)[0])  # 网站某个分类，html 里的 数字代表值, /后 -前的数字,
+IndexError: list index out of range

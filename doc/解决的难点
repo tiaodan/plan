@@ -1,0 +1,11 @@
+1. 项目只读取配置文件一次，配置文件的变量所有文件都可以
+解决思路：用一个util方法读取配置，在项目的main方法种调用fun(读取配置文件)，然后再写一个全局变量的py（提供get和set方法）
+,在main方法中调用set方法设置全局变量。后期如果用全局变量，就import 全局变量的py即可。
+
+2. pip install lxml 失败
+原因：最新的版本python3.8 不支持
+思路： 离线安装,要按照32位的版本
+1) 下载模块lxml模块下载地址http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml
+2）激活虚拟环境
+3）在虚拟环境中，cd到lxml安装目录，
+4）pip install lxml-4.6.3-cp38-none-win32.whl

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>add_plan</title>
+    <link rel="stylesheet" href="static/lib/layui/css/layui.css">
+</head>
+<body>
+    <!-- 自定义模块 start -->
+    <span hidden id="addBar">
+        <button class="layui-btn layui-btn-sm" lay-event="add">添加</button>
+    </span>
+    <!-- 自定义模块 end -->
+    <table id="add_plan" lay-filter="add_plan"></table>
+
+    <script src="static/lib/layui/layui.js"></script>
+    <script>
+        var $ = layui.$;
+        layui.use('table', function () {
+            var table = layui.table;
+
+            table.render({
+                elem: '#add_plan',
+                url: 'static/json/add_plan.json',
+                toolbar: '#addBar',
+                defaultToolbar: ['filter'],
+                cols:[[
+                    {type: 'checkbox'},
+					{field: 'id', title: 'id'},
+					{field: 'date', title: 'date', width: 110, sort:true, edit: true},
+					{field: 'planid1', title: 'planid1', edit: true},
+					{field: 'planisfinish1', title: 'isfinish1', edit: true},
+					{field: 'planid2', title: 'planid2', edit: true},
+					{field: 'planisfinish2', title: 'isfinish2', edit: true},
+					{field: 'planid3', title: 'planid3', edit: true},
+					{field: 'planisfinish3', title: 'isfinish3', edit: true},
+					{field: 'planid4', title: 'planid4', edit: true},
+					{field: 'planisfinish4', title: 'isfinish4', edit: true},
+					{field: 'planid5', title: 'planid5', edit: true},
+					{field: 'planisfinish5', title: 'isfinish5', edit: true},
+					{field: 'planid6', title: 'planid6', edit: true},
+					{field: 'planisfinish6', title: 'isfinish6', edit: true},
+					{field: 'planid7', title: 'planid7', edit: true},
+					{field: 'planisfinish7', title: 'isfinish7', edit: true},
+					{field: 'planid8', title: 'planid8', edit: true},
+					{field: 'planisfinish8', title: 'isfinish8', edit: true},
+					{field: 'planid9', title: 'planid9', edit: true},
+					{field: 'planisfinish9', title: 'isfinish9', edit: true},
+					{field: 'planid10', title: 'planid10', edit: true},
+					{field: 'planisfinish10', title: 'isfinish10', edit: true},
+                    {field: 'planid11', title: 'planid11', edit: true},
+                    {field: 'planisfinish11', title: 'isfinish11', edit: true},
+					{field: 'planid12', title: 'planid12', edit: true},
+					{field: 'planisfinish12', title: 'isfinish12', edit: true},
+					{field: 'planid13', title: 'planid13', edit: true},
+					{field: 'planisfinish13', title: 'isfinish13', edit: true},
+					{field: 'planid14', title: 'planid14', edit: true},
+					{field: 'planisfinish14', title: 'isfinish14', edit: true},
+					{field: 'planid15', title: 'planid15', edit: true},
+					{field: 'planisfinish15', title: 'isfinish15', edit: true},
+					{field: 'planid16', title: 'planid16', edit: true},
+					{field: 'planisfinish16', title: 'isfinish16', edit: true},
+					{field: 'planid17', title: 'planid17', edit: true},
+					{field: 'planisfinish17', title: 'isfinish17', edit: true},
+					{field: 'planid18', title: 'planid18', edit: true},
+					{field: 'planisfinish18', title: 'isfinish18', edit: true},
+					{field: 'planid19', title: 'planid19', edit: true},
+					{field: 'planisfinish19', title: 'isfinish19', edit: true},
+					{field: 'planid20', title: 'planid20', edit: true},
+					{field: 'planisfinish20', title: 'isfinish20', edit: true}
+				]]
+            });
+
+            //按钮监听
+            table.on('toolbar(add_plan)', function (obj) {  // totlbar里引用的是lay-filter
+                var checkStatus = table.checkStatus(obj.config.id);
+                console.log('checkStatus==', checkStatus);
+                switch(obj.event){
+                    case 'add':
+                        layer.msg('点击了add');
+                        // 1. 获取添加的数据
+                        var data = checkStatus.data[0];
+                        console.log('data.date==', data.date);
+                        console.log('data ==', data);
+                        // ajax插入后台数据,post
+                        $.ajax({
+                            type: 'post', //请求方法
+                            url: '/add_plan',
+                            data: {'date': data.date,
+                                planid1: data.planid1, planisfinish1: data.planisfinish1,
+                                planid2: data.planid2, planisfinish2: data.planisfinish2,
+                                planid3: data.planid3, planisfinish3: data.planisfinish3,
+                                planid4: data.planid4, planisfinish4: data.planisfinish4,
+                                planid5: data.planid5, planisfinish5: data.planisfinish5,
+                                planid6: data.planid6, planisfinish6: data.planisfinish6,
+                                planid7: data.planid7, planisfinish7: data.planisfinish7,
+                                planid8: data.planid8, planisfinish8: data.planisfinish8,
+                                planid9: data.planid9, planisfinish9: data.planisfinish9,
+                                planid10: data.planid10, planisfinish10: data.planisfinish10,
+                                planid11: data.planid11, planisfinish11: data.planisfinish11,
+                                planid12: data.planid12, planisfinish12: data.planisfinish12,
+                                planid13: data.planid13, planisfinish13: data.planisfinish13,
+                                planid14: data.planid14, planisfinish14: data.planisfinish14,
+                                planid15: data.planid15, planisfinish15: data.planisfinish15,
+                                planid16: data.planid16, planisfinish16: data.planisfinish16,
+                                planid17: data.planid17, planisfinish17: data.planisfinish17,
+                                planid18: data.planid18, planisfinish18: data.planisfinish18,
+                                planid19: data.planid19, planisfinish19: data.planisfinish19,
+                                planid20: data.planid20, planisfinish20: data.planisfinish20
+                            },
+                            datatype: 'json'
+                        });
+                        break;
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>

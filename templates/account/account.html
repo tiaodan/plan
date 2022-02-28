@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>账号</title>
+    <link rel="stylesheet" href="static/lib/layui/css/layui.css">
+</head>
+<body>
+    <!-- 自定义控件 start-->
+    <span class="layui-btn-container" id="toolbarDemo" hidden>
+        <button class="layui-btn layui-btn-sm" lay-event="getCheckData">获取选中行数据</button>
+        <button class="layui-btn layui-btn-sm" lay-event="getCheckLength">获取选中行数目</button>
+        <button class="layui-btn layui-btn-sm" lay-event="isAll">验证是否全选</button>
+    </span>
+    <span hidden id="barDemo">
+        <button class="layui-btn layui-btn-xs" lay-event="edit">编辑</button>
+        <button class="layui-btn layui-btn-xs layui-btn-danger" lay-event="delete">删除</button>
+    </span>
+    <!-- 自定义控件 end-->
+	<table id="account" lay-filter="account"></table>
+
+    <script type="text/javascript" src="static/lib/layui/layui.js"></script>
+    <script>
+        $ = layui.$;
+        layui.use('table', function () {
+            var table = layui.table;
+
+            table.render({
+                elem: '#account',
+                url: '/account',
+                toolbar: '#toolbarDemo',
+                defaultToolbar: ['filter', 'exports', 'print'], // 自定义头部工具栏右侧显示哪些图标
+                cols: [[
+                    {checkbox: true, fixed: 'left'},
+                    {title: '操作', toolbar: '#barDemo', width: 120},
+                    {field: 'id', title: 'id'},
+                    {field: 'type', title: '账号类型', sort:true, edit: true},
+                    {field: 'sitename', title: '网站名称', sort:true, edit: true},
+                    {field: 'sitetype', title: '网站类型', sort:true, edit: true},
+                    {field: 'url', title: 'url', sort:true, edit: true},
+                    {field: 'username', title: '用户名', sort:true, edit: true},
+                    {field: 'initpw', title: '初始密码', sort:true, edit: true},
+                    {field: 'newpw', title: '最新密码', sort:true, edit: true},
+                    {field: 'email', title: '邮箱', sort:true, edit: true},
+                    {field: 'phone', title: '手机', sort:true, edit: true},
+                    {field: 'QRcode', title: '二维码', sort:true, edit: true},
+                    {field: 'key', title: 'key', sort:true, edit: true},
+                    {field: 'pwrules', title: '密码规则', sort:true, edit: true},
+                    {field: 'safequestion', title: '安全问题', sort:true, edit: true},
+                    {field: 'safeanswer', title: '安全答案', sort:true, edit: true},
+                    {field: 'createtime', title: '创建时间', sort:true, edit: true},
+                    {field: 'updatetime', title: '更新时间', sort:true, edit: true},
+                    {field: 'isuseful', title: '可用？', sort:true, edit: true},
+                    {field: 'remark', title: '备注', sort:true, edit: true},
+                ]],
+                page: true,
+                response: {
+                    statusCode: 200  //规定成功的状态码
+                },
+                height: 'full-20',  // 表格容器距离浏览器顶部和底部的距离“和”
+                even: true,  // 隔行背景
+                size: 'sm'  // 小尺寸的表格
+            });
+
+            //监听行工具事件
+            table.on('tool(account)', function (obj) {
+                var data = obj.data;
+                if(obj.event === 'delete'){
+                    layer.confirm('真的删除行吗？', function (index) {
+                        // 1. 获取选中行数据
+                        rowdatastr = JSON.stringify(obj.data);
+                        rowdataobj = JSON.parse(rowdatastr); // { }类型
+
+                        // 2. 请求后台接口
+                        $.ajax({
+                           type: 'delete',
+                           url: '/account',
+                           datatype: 'json',
+                           data: rowdataobj  // obj类型的 { } 键值对
+                        });
+                        // 3. ui删除改行
+                        obj.del();
+                        layer.close(index)
+                    });
+                }else if(obj.event === 'edit'){
+                    // 1. 获取选中行数据
+                    //layer.alert(JSON.stringify(obj.data));
+                    rowdatastr = JSON.stringify(obj.data);
+                    rowdataobj = JSON.parse(rowdatastr); // { }类型
+                    // 2. 请求后台接口
+                    $.ajax({
+                        type: 'post',
+                        url: '/account',
+                        datatype: 'json',
+                        data: rowdataobj  // obj类型的 { } 键值对
+                    });
+                    layer.msg('修改成功')
+                    /*
+                    var checkStatus = table.checkStatus(obj.config.id);
+                    var data = checkStatus.data;
+                    layer.msg(JSON.stringify(data));
+                    layer.confirm('真的修改吗？', function () {
+                        layer.msg('修改成功')
+                    })*/
+                }
+            });
+
+            // 监听头工具栏事件
+            table.on('toolbar(account)', function (obj) {
+                var checkStatus = table.checkStatus(obj.config.id);
+                switch(obj.event){
+                    case 'getCheckData':  // 获取选中行数据
+                        var data = checkStatus.data;  // [{},{},{}] 这种类型的数据
+                        layer.msg(JSON.stringify(data));
+                        layer.alert(JSON.stringify(data));
+                    break;
+                    case 'getCheckLength':
+                        var data = checkStatus.data;  // [{},{},{}] 这种类型的数据
+                        layer.msg('选中了：' + data.length + '个');
+                    break;
+                    case 'isAll':
+                        layer.msg(checkStatus.isAll ? '全选': '未全选');
+                    break;
+                }
+            });
+
+        })
+    </script>
+</body>
+</html>

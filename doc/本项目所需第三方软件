@@ -1,0 +1,2 @@
+1. configparser 5.1.0 读取 xx.ini 类型的配置文件 [配置组] xx= xxx
+2. pymysql == 1.0.2
