@@ -15,6 +15,7 @@ import re  # python 自带
 from threading import Thread as thread  # python 自带
 import threading  # python 自带
 import audiobook  # 自定义
+import os  # 自定义
 
 
 # 基础参数
@@ -253,3 +254,26 @@ def traditional2simple(traditional_str):
 def simple2traditional(simple_str):
     traditional_str = convert(simple_str, 'zh-hant')
     return traditional_str
+
+
+# 递归 创建文件夹
+def mkdir(path):
+    folder = os.path.exists(path)
+    if folder:
+        print(f'{path} 文件已存在')
+    else:
+        print(f'创建文件夹 {path}')
+        os.makedirs(path)
+
+
+def urldownload(url, filepath):
+    """
+    下载文件到置顶目录
+    :param url: 文件url
+    :param filepath: 文件存放路径,例如: /home/dir
+    :return:
+    """
+    down_res = requests.get(url)
+    with open(filepath, 'wb') as file:
+        file.write(down_res.content)
+        file.close()

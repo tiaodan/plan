@@ -720,7 +720,7 @@ def interface_audiobook_chapter():
     # 1. 从数据库取10条未爬取的book的url, -->插入线程池 -->过60秒检测-->任务都做完了,就再加10条任务-->任务没做完,过60秒继续检查
     all_task = []
     default_task_num = 20  # 默认添加几个任务
-    default_loop_time = 20  # 默认轮询时间,查询是否任务列表空了
+    default_loop_time = 10  # 默认轮询时间,查询是否任务列表空了
     while True:
         if len(all_task) < 5:
             print(f'--------------任务列表 <5,添加{default_task_num}个任务')
@@ -729,16 +729,18 @@ def interface_audiobook_chapter():
             result_tuple = dbutil.execute_project('audiobook', sql)
             print(f'获取10条书的url= {result_tuple}')
 
+            if len(result_tuple) == 0:
+                print('有声书spider_status =0 个数为0,所有有声书爬取完成,主线程应结束!!!')
+                break
             # 2. 给线程池添加 10 个任务-爬取书的章节(每个方法,自动更新数据库)
             print('线程池添加任务,爬取书的章节,存入数据库...')
             for i in range(default_task_num):  # 初始化10个
+                if i > len(result_tuple):
+                    break
                 print(f'爬取audiobook, id={result_tuple[i][0]}, name={result_tuple[i][1]}, url={result_tuple[i][2]}')
                 task = threadutil.THREADPOOL.submit(audiobook.spider_chapters, "https://www.tingbook.cc", result_tuple[i][0], result_tuple[i][1], result_tuple[i][2])
                 all_task.append(task)
 
-            if len(result_tuple) == 0:
-                print('有声书spider_status =0 个数为0,所有有声书爬取完成,主线程应结束!!!')
-                break
         else:
             print(f'--------------任务列表 !!!! >=5, 剩余任务{len(all_task)}个')
 
@@ -765,6 +767,104 @@ def interface_audiobook_chapter():
                 all_task = []
         '''
     return "hahah"
+
+
+@app.route('/audiobook_chapter_media', methods=('GET', 'POST', 'DELETE'))
+def interface_audiobook_chapter_media():
+    # 思路:
+    # 循环:
+    # 1. 从数据库取10条未爬取的 chapter 的url, -->插入线程池 -->过60秒检测-->任务都做完了,就再加10条任务-->任务没做完,过60秒继续检查
+    all_task = []
+    default_task_num = 40  # 默认添加几个任务 20
+    default_loop_time = 10  # 默认轮询时间,查询是否任务列表空了 10
+    while True:
+        if len(all_task) < 10:
+            print(f'--------------任务列表 <5,添加{default_task_num}个任务')
+            # 1. 从数据库取10条未爬取的book的url
+            sql = f'select id, name, url from chapter where spider_status=0 limit 0,{default_task_num}'
+            result_tuple = dbutil.execute_project('audiobook', sql)
+            print(f'获取10条 chapter 的url= {result_tuple}')
+
+            if len(result_tuple) == 0:
+                print('有声书spider_status =0 个数为0,所有有声书 media 爬取完成,主线程应结束!!!')
+                break
+
+            # 2. 给线程池添加 10 个任务-爬取章节 mp3(每个方法,自动更新数据库)
+            print('线程池添加任务,爬取书的章节 media,存入数据库...')
+            for i in range(default_task_num):  # 初始化10个
+                if i > len(result_tuple):
+                    break
+                print(f'爬取 chapter-media, id={result_tuple[i][0]}, name={result_tuple[i][1]}, url={result_tuple[i][2]}')
+                task = threadutil.THREADPOOL.submit(audiobook.spider_chapters_medias, result_tuple[i][0], result_tuple[i][1], result_tuple[i][2])
+                all_task.append(task)
+        else:
+            print(f'--------------爬取 chapter - media 任务列表 !!!! >=5, 剩余任务{len(all_task)}个')
+
+        print('等待60秒,查询任务状态==========================')
+        for second in range(default_loop_time):
+            print(f'主线程休眠 {second} 秒')
+        time.sleep(default_loop_time)  # 1分钟检查一次
+        print(f'----------------> 当前所有的任务列表(chapter-media){ len(all_task) }个= {all_task}')
+        # print(f'----------------> 当前所有的 线程池 列表 {threadutil.THREADPOOL}')
+
+        for task in as_completed(all_task):
+            print(f'共有任务(chapter-media) {len(all_task)}, 查询当前任务task = {task}')
+            if task.done() is True:
+                print(f'任务{task} 完成了, 删除!')
+                all_task.remove(task)
+
+    return "完了"
+
+
+@app.route('/audiobook_chapter_media_download', methods=('GET', 'POST', 'DELETE'))
+def interface_audiobook_chapter_media_download():
+    """
+    下载章节的 media
+    :return:
+    """
+    # 思路:
+    # 循环:
+    # 1. 从数据库取10条未下载 的 chapter 的url, -->插入线程池 -->过60秒检测-->任务都做完了,就再加10条任务-->任务没做完,过60秒继续检查
+    all_task = []
+    default_task_num = 40  # 默认添加几个任务 20
+    default_loop_time = 10  # 默认轮询时间,查询是否任务列表空了 10
+    while True:
+        if len(all_task) < 10:
+            print(f'--------------任务列表 <5,添加{default_task_num}个任务')
+            # 1. 从数据库取10条未爬取的book的url
+            sql = f'select id, name, url from chapter where spider_status=0 limit 0,{default_task_num}'
+            result_tuple = dbutil.execute_project('audiobook', sql)
+            print(f'获取10条 chapter 的url= {result_tuple}')
+
+            if len(result_tuple) == 0:
+                print('有声书spider_status =0 个数为0,所有有声书 media 爬取完成,主线程应结束!!!')
+                break
+
+            # 2. 给线程池添加 10 个任务-爬取章节 mp3(每个方法,自动更新数据库)
+            print('线程池添加任务,爬取书的章节 media,存入数据库...')
+            for i in range(default_task_num):  # 初始化10个
+                if i > len(result_tuple):
+                    break
+                print(f'爬取 chapter-media, id={result_tuple[i][0]}, name={result_tuple[i][1]}, url={result_tuple[i][2]}')
+                task = threadutil.THREADPOOL.submit(audiobook.spider_chapters_medias, result_tuple[i][0], result_tuple[i][1], result_tuple[i][2])
+                all_task.append(task)
+        else:
+            print(f'--------------爬取 chapter - media 任务列表 !!!! >=5, 剩余任务{len(all_task)}个')
+
+        print('等待60秒,查询任务状态==========================')
+        for second in range(default_loop_time):
+            print(f'主线程休眠 {second} 秒')
+        time.sleep(default_loop_time)  # 1分钟检查一次
+        print(f'----------------> 当前所有的任务列表(chapter-media){ len(all_task) }个= {all_task}')
+        # print(f'----------------> 当前所有的 线程池 列表 {threadutil.THREADPOOL}')
+
+        for task in as_completed(all_task):
+            print(f'共有任务(chapter-media) {len(all_task)}, 查询当前任务task = {task}')
+            if task.done() is True:
+                print(f'任务{task} 完成了, 删除!')
+                all_task.remove(task)
+
+    return "完了"
 
 
 if __name__ == '__main__':

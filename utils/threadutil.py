@@ -2,7 +2,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed  # 线程池， 
 import time
 
 # 初始化
-MAX_THREADS = 3  # 最大并发线程数
+MAX_THREADS = 10  # 最大并发线程数
 THREADPOOL = ThreadPoolExecutor(max_workers=MAX_THREADS)  # 线程池
 
 # task1 = THREADPOOL.submit(spider, 1)  # 线程池添加任务,submit(方法名, (方法参数))

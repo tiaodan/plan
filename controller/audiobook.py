@@ -5,6 +5,7 @@ from lxml import etree  # 第三方
 from datetime import date  # python 自带
 import time  # 系统自带
 import traceback  # 系统自带
+import re  # 系统自带
 
 
 # --------------------------------------------------------------------------- #
@@ -656,5 +657,60 @@ def spider_chapters(website_domain_name, arg_audiobookid, arg_audiobookname, aud
         dbutil.execute_project('audiobook', sql, values_dict)
 
 
-def haha(num, num2):
-    print(f'audiobook.py --> haha....{num, num2}')
+# --------------------------------------------------------------------------- #
+# 创建一个线程--》下载章节的 media
+# Parameter1: chapter 书的id  arg_chapterid
+# Parameter2: chapter-name 书的简体名字 arg_chaptername
+# Parameter3: url 章节 的链接 arg_chapterurl
+# output: None
+# return: None
+# --------------------------------------------------------------------------- #
+# 创建一个线程--》下载章节的 media
+def spider_chapters_medias(arg_chapterid, arg_chaptername, arg_chapterurl):
+    # 思路：
+    # 1. 请求书的 url
+    # 2. 爬取章节-media信息
+    # 3. 数据清洗
+    # 4. 修改章节数据库
+
+    try:
+        # 1. 请求书的url
+        html_str = util.get_html(arg_chapterurl)
+
+        media_url = re.findall(r'var\s now="(.+?)";', html_str, re.VERBOSE | re.DOTALL)[0]
+        print(f'爬取 <<{arg_chaptername}>>  到的media_url = {media_url}')
+
+        # 3. 数据清洗
+        # 4. 修改数据库
+        values_dict = {
+            "media_url": media_url,
+            "spider_status": str(1),
+            "id": str(arg_chapterid),
+            "name": arg_chaptername,
+            "url": arg_chapterurl
+        }
+
+        sql = """
+                update chapter set media_url=%(media_url)s, spider_status=%(spider_status)s 
+                where
+                id=%(id)s and name=%(name)s and url=%(url)s
+        """
+        dbutil.execute_project('audiobook', sql, values=values_dict)
+
+        # 判断插入的media_url是否有值,如果没有,改spider_status=2 (爬取,未成功)
+        sql = f"select media_url from chapter where id={arg_chapterid}"
+        media_url = dbutil.execute_project('audiobook', sql)[0][0]
+        if media_url is None or media_url == "":
+            sql = f"update chapter set spider_status=2 where id={arg_chapterid}"
+            dbutil.execute_project('audiobook', sql)
+
+    except Exception as ex:
+        print('audiobook.py 出现异常,func=spider_chapters_medias, 直接修改chapter.spider_status=3')
+        traceback.print_exc()  # 打印详细报错
+        sql = "update chapter set spider_status=3 where id=%(id)s and name=%(name)s and url=%(url)s"
+        values_dict = {
+            "id": str(arg_chapterid),
+            "name": arg_chaptername,
+            "url": arg_chapterurl
+        }
+        dbutil.execute_project('audiobook', sql, values_dict)
