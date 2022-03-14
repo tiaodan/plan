@@ -258,10 +258,8 @@ def simple2traditional(simple_str):
 
 # 递归 创建文件夹
 def mkdir(path):
-    folder = os.path.exists(path)
-    if folder:
-        print(f'{path} 文件已存在')
-    else:
+    # folder = os.path.exists(path)
+    if not os.path.exists(path):
         print(f'创建文件夹 {path}')
         os.makedirs(path)
 

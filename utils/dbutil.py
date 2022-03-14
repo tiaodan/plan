@@ -96,7 +96,7 @@ def execute_project(project_name, sql, values=None):
     #     "count": 0,
     #     "data": []
     # }
-    sql_result = {}
+    sql_result = ()
 
     # 1. 连接数据库
     if project_name == 'account':

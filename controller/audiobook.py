@@ -1,11 +1,13 @@
-import util  # 自定义
-import dbutil  # 自定义
 import re  # 第三方
 from lxml import etree  # 第三方
 from datetime import date  # python 自带
 import time  # 系统自带
 import traceback  # 系统自带
 import re  # 系统自带
+import util  # 自定义
+import dbutil  # 自定义
+import threadutil  # 自定义: 线程库
+import os  # 自定义,io操作 文件操作
 
 
 # --------------------------------------------------------------------------- #
@@ -197,7 +199,7 @@ def spider_audiobook(category_url, category_dict, sleep_seconds):
         # #                 <section>
         # #                     <h2 class="style-title txt-ov f-15 mb5"><span class="fr f-12 f-gray"><i class="iconfont icon-user"></i> 亦笑天有声工作室</span><a href="/show/25993.html" class="f-bold">绝世武神</a></h2>
         # #                                         <p class="f-gray mb10 f-12">绝世武神作者：亦笑天有声工作室，由净无痕播音，听书网有声小说提供收听平台，欢迎你到本站收听节目，本站不间断收录最新小说，希望你能喜欢！</p>
-        # #                     <p><a href="/show/25993.html" class="style-btn tx-c1">开始收听</a></p>
+         # #                     <p><a href="/show/25993.html" class="style-btn tx-c1">开始收听</a></p>
         # #                 </section>
         # #             </div>
         # #         </li>
@@ -714,3 +716,285 @@ def spider_chapters_medias(arg_chapterid, arg_chaptername, arg_chapterurl):
             "url": arg_chapterurl
         }
         dbutil.execute_project('audiobook', sql, values_dict)
+
+
+def checkis_done_spider_chapters_medias():
+    """
+    监听线程: 爬取audiobook.chapter里所有的 媒体文件
+    :return:
+    """
+    # 思路:
+    # 循环:
+    # 1. 从数据库取10条未下载 的 chapter 的url, -->插入线程池 -->过60秒检测-->任务都做完了,就再加10条任务-->任务没做完,过60秒继续检查
+    all_task = []
+    default_task_num = 100  # 默认添加几个任务 40
+    # default_task_num = 2  # 默认添加几个任务 20
+    default_loop_time = 10  # 默认轮询时间,查询是否任务列表空了 10
+    while True:
+        if len(all_task) < default_task_num/2:
+            print(f'--------------任务列表 <5,添加{default_task_num}个任务')
+            # 1. 从数据库取10条未爬取的book的url
+            sql = f'select id, name, url from chapter where spider_status=0 limit 0,{default_task_num}'
+            result_tuple = dbutil.execute_project('audiobook', sql)
+            print(f'获取10条 chapter 的url= {result_tuple}')
+
+            if len(result_tuple) == 0:
+                print('有声书spider_status =0 个数为0,所有有声书 media 爬取完成,主线程应结束!!!')
+                break
+
+            # 2. 给线程池添加 10 个任务-爬取章节 mp3(每个方法,自动更新数据库)
+            print('线程池添加任务,爬取书的章节 media,存入数据库...')
+            for i in range(default_task_num):  # 初始化10个
+                if i > len(result_tuple):
+                    break
+                print(f'爬取 chapter-media, id={result_tuple[i][0]}, name={result_tuple[i][1]}, url={result_tuple[i][2]}')
+                task = threadutil.THREADPOOL.submit(spider_chapters_medias, result_tuple[i][0], result_tuple[i][1], result_tuple[i][2])
+                all_task.append(task)
+        else:
+            print(f'--------------爬取 chapter - media 任务列表 !!!! >={default_task_num/2}, 剩余任务{len(all_task)}个')
+
+        print('等待60秒,查询任务状态==========================')
+        for second in range(default_loop_time):
+            print(f'主线程休眠 {second} 秒')
+        time.sleep(default_loop_time)  # 1分钟检查一次
+        print(f'----------------> 当前所有的任务列表(chapter-media){len(all_task)}个= {all_task}')
+        # print(f'----------------> 当前所有的 线程池 列表 {threadutil.THREADPOOL}')
+
+        # for task in as_completed(all_task):  # 主线程用 as_completed
+        for task in all_task:
+            print(f'共有任务(chapter-media) {len(all_task)}, 查询当前任务task = {task}')
+            if task.done() is True:
+                print(f'任务{task} 完成了, 删除!')
+                all_task.remove(task)
+    print('while 循环结束了')
+
+
+def download_chapter_media(arg_audiobook_name, arg_chapterid, arg_chapter_num, arg_chapter_media_url, arg_reader):
+    """
+    下载 chapter 媒体文件,下载的类型都存储成xxx.mp3文件
+    :param arg_audiobook_name:  书名称
+    :param arg_chapterid:
+    :param arg_chapter_num:  章节号码
+    :param arg_chapter_media_url:
+    :param arg_reader:
+    :return:
+    """
+    # 思路：
+    # 1.
+    # 2. 查看有没有下载,如果下载了,修改数据库;如果没有,下载,然后修改数据库
+    # 3. 修改章节数据库
+
+    try:
+        # 2. 查看有没有下载,如果下载了,修改数据库;如果没有,下载,然后修改数据库
+
+        rootpath = "C:/home"  # 根目录
+        projectpath = "/audiobook"  # 项目目录
+        util.mkdir(rootpath + projectpath + '/' + arg_audiobook_name + '/' + arg_reader)
+        filepath = rootpath + projectpath + '/' + arg_audiobook_name + '/' + arg_reader + '/' + str(arg_chapter_num) + ".mp3"
+        if os.path.exists(filepath):
+            sql = f"update chapter set download_status=4 where id={arg_chapterid}"
+            dbutil.execute_project('audiobook', sql)
+            return "这个书已经下载过了,虽然书名一样,作者一样,但是章节数不一样,改chapter.download_status=4"
+
+        if not os.path.exists(filepath):
+            print(f'{filepath} 文件不存在,创建')
+        util.urldownload(arg_chapter_media_url, filepath)
+
+        # 4. 修改数据库
+        sql = f"update chapter set download_status=1 where id={arg_chapterid}"
+        dbutil.execute_project('audiobook', sql)
+
+        # 判断文件是否真的下载成功,如果没有,改 download_status=2 (爬取,未成功)
+        if not os.path.exists(filepath):
+            print(f'{filepath} 文件没有创建成功,改download_status=2')
+            sql = f"update chapter set download_status=2 where id={arg_chapterid}"
+            dbutil.execute_project('audiobook', sql)
+
+    except Exception as ex:
+        print('audiobook.py 出现异常,func=download_chapter_media, 直接修改chapter.download_status=3')
+        traceback.print_exc()  # 打印详细报错
+        sql = f"update chapter set download_status=3 where id={arg_chapterid}"
+        dbutil.execute_project('audiobook', sql)
+
+
+def checkis_done_download_chapter_media():
+    """
+    监听线程: 下载 audiobook.chapter里所有的 媒体文件
+    :return:
+    """
+    # 思路:
+    # 循环:
+    # 1. 从数据库取10条未下载 的 chapter 的url, -->插入线程池 -->过60秒检测-->任务都做完了,就再加10条任务-->任务没做完,过60秒继续检查
+    all_task = []
+    # default_task_num = 100  # 默认添加几个任务 40
+    default_task_num = 10  # 默认添加几个任务 5 , 20
+    default_loop_time = 10  # 默认轮询时间,查询是否任务列表空了 10
+    while True:
+        if len(all_task) < default_task_num/2:
+            print(f'--------------下载chapter-media 任务列表 <5,添加{default_task_num}个任务')
+            # 1. 从数据库取10条未爬取的book的url
+            sql = f'select c.audiobookname, c.id, c.chapter_num, c.media_url, a.reader  from chapter as c,audiobook as a where c.download_status=0 and a.id=c.audiobookid limit 0,{default_task_num}'
+            result_tuple = dbutil.execute_project('audiobook', sql)
+            print(f'获取10条 chapter-media 的url= {result_tuple}')
+
+            if len(result_tuple) == 0:
+                print('有声书 download_status =0 个数为0,所有有声书 media 下载完成,主线程应结束!!!')
+                break
+
+            # 2. 给线程池添加 10 个任务-爬取章节 mp3(每个方法,自动更新数据库)
+            print('线程池添加任务,下载书的章节 media,存入数据库...')
+            for i in range(default_task_num):  # 初始化10个
+                if i > len(result_tuple):
+                    break
+                print(f'下载 chapter-media, audiobookname={result_tuple[i][0]}, id={result_tuple[i][1]}, chapter_num={result_tuple[i][2]}, url={result_tuple[i][3]}, reader={result_tuple[i][4]}')
+                task = threadutil.THREADPOOL.submit(download_chapter_media, result_tuple[i][0].strip(), result_tuple[i][1], result_tuple[i][2], result_tuple[i][3].strip(), result_tuple[i][4].strip())
+                all_task.append(task)
+        else:
+            print(f'--------------下载 chapter - media 任务列表 !!!! >={default_task_num/2}, 剩余任务{len(all_task)}个')
+
+        print('等待60秒,查询下载 chapter-media 任务状态==========================')
+        for second in range(default_loop_time):
+            print(f'下载chapter-mdiea,主线程休眠 {second} 秒')
+        time.sleep(default_loop_time)  # 1分钟检查一次
+        print(f'---------------->下载chapter-mdiea, 当前所有的任务列表(chapter-media){len(all_task)}个= {all_task}')
+
+        # for task in as_completed(all_task):  # 主线程用 as_completed
+        for task in all_task:
+            print(f'下载chapter-mdiea,共有任务(chapter-media) {len(all_task)}, 查询当前任务task = {task}')
+            if task.done() is True:
+                print(f'下载chapter-mdiea, 任务{task} 完成了, 删除!')
+                all_task.remove(task)
+    print('下载chapter-mdiea, while 循环结束了')
+
+
+def audiobook_remove_duplicate():
+    """
+    有声书,sql 去重
+    原因: 爬取的时候,没有把audiobook.name 先转成简体,所以书名一样的链接,有(简体和繁体的)
+    思路:
+    1. 查询所有的 audiobook
+    2. 循环查找每一个audiobook, 先看 count(name==traditional_name)是否>1,   先查找name = 繁体的id,先删除 select count(id) from chapter where audiobookid=1013;
+    3. 删除是繁体name 的id  delete from audiobook where id = 1013
+    :return:
+    """
+
+    sql = "select id, name, traditional_name, url, websiteid from audiobook where name=traditional_name"  # 查所有繁体书名
+    result_tuple = dbutil.execute_project('audiobook', sql)
+    for i in range(len(result_tuple)):
+        try:
+            # 查找 繁体书名 是否count(id) > 1 ?
+            arg_id = result_tuple[i][0]
+            arg_name = result_tuple[i][1]
+            arg_traditional_name = result_tuple[i][2]
+            arg_url = result_tuple[i][3]
+            arg_websiteid = result_tuple[i][4]
+
+            sql_dict = {
+                "traditional_name": arg_traditional_name,
+                "url": arg_url,
+                "websiteid": str(arg_websiteid)
+            }
+
+            sql = "select id from audiobook where name = traditional_name and traditional_name=%(traditional_name)s and url=%(url)s and websiteid=%(websiteid)s"
+
+            duplicate_result = dbutil.execute_project('audiobook', sql, sql_dict)
+            if len(duplicate_result) > 0:
+                duplicate_audiobookid = int(duplicate_result[0][0])  # 要删除的重复数据id
+                print(f'要删除的 id, traditional_name ===== {arg_traditional_name} {duplicate_audiobookid}')
+                sql = f"delete from audiobook where id={duplicate_audiobookid}"
+                dbutil.execute_project('audiobook', sql)  # 删除重复id
+
+                # 删除chapter表内容
+                sql = f"delete from chapter where audiobookid={duplicate_audiobookid}"
+                dbutil.execute_project('audiobook', sql)  # 删除重复id
+            # time.sleep(60)
+        except Exception as ex:
+            print('audiobook.py 出现异常,func= audiobook_remove_duplicate')
+            traceback.print_exc()  # 打印详细报错:
+
+        continue
+
+    print('重复数据删除完了!')
+
+    '''
+    # 有多个name = traditional_name 数据出现时用这个
+    same_traditional_name_count_sql = f"select count(id), count(name=traditional_name or null) from audiobook where traditional_name={arg_traditional_name} and url={arg_url} and websiteid={arg_websiteid}"
+    same_traditional_name_result_tuple = dbutil.execute_project('audiobook', same_traditional_name_count_sql)
+    same_traditional_name_count = int(same_traditional_name_result_tuple[0][0])
+    tuplicatee_audiobook_count = int(same_traditional_name_result_tuple[0][1])  # 重复的书名 name = traditional_name
+    if same_traditional_name_count > 1:
+        if same_traditional_name_count == tuplicatee_audiobook_count:   # 可能出现的重复组合 3=3的剩一个
+            # 剩下一个
+        else:  # 都删了
+
+
+        for k in range(same_traditional_name_count - 1):
+            if name == traditional_name:
+                sql = f"delete from audiobook where id = {xx} and name=traditional_name"  # 删除
+                pass
+            # 3     2       3    3     2    1    2    2    3    1可能出现的重复组合 3=3的剩一个 ,两边不相等的,都删了,因为现在数据库索引,所以只能有1个name = traditional_name 的数据出现
+            # haha  HAHA    HAHA HAHA  haha HAHA haha haha haha HAHA
+            # HAHA  HAHA    HAHA HAHA  HAHA HAHA haha haha HAHA HAHA
+            # HAHA  HAHA    HAHA HAHA                      haha HAHA
+    '''
+
+
+# 查
+def query(query_sql, query_values=None):
+    """
+    :param query_sql:
+    :param query_values:
+    :return:
+    """
+    # 1. 定义返回json类型
+    result = dict()
+    result.update({
+        "code": 0,
+        "msg": "",
+        "count": 0,
+        "data": []
+    })
+
+    # 查询总数
+    total = dbutil.execute_project('audiobook', 'select count(id) from audiobook')[0][0]
+    result['count'] = total
+
+    result_tuple = dbutil.execute_project('audiobook', query_sql, query_values)  # tuple类型
+    for row in result_tuple:
+        # print('每行返回结果type==', type(row), row)  # tuple
+        data = dict()
+        data['id'] = row[0]
+        data['name'] = row[1]
+        data['traditional_name'] = row[2]
+        data['url'] = row[3]
+        data['typeid'] = row[4]
+        data['type'] = row[5]
+        data['countryid'] = row[6]
+        data['country'] = row[7]
+        data['processid'] = row[8]
+        data['process'] = row[9]
+        data['websiteid'] = row[10]
+        data['website'] = row[11]
+        data['alias'] = row[12]
+        data['author'] = row[13]
+        data['reader'] = row[14]
+        data['brief'] = row[15]
+        data['is_for_adult'] = row[16]
+        data['score'] = row[17]
+        data['total_chapter'] = row[18]
+        data['cover_photo_url'] = row[19]
+        data['cover_photo_savepath'] = row[20]
+        data['hits'] = row[21]
+        data['release_date'] = row[22]
+        data['last_update_date'] = row[23]
+        data['update_to_chapter'] = row[24]
+        data['download_status'] = row[25]
+
+        result['data'].append(data)
+
+    result['code'] = 200
+    if result['code'] == 200:
+        result['msg'] = 'success'
+    else:
+        result['msg'] = 'fail'
+    return result

@@ -16,14 +16,13 @@
         <button class="layui-btn layui-btn-sm" lay-event="isAll">验证是否全选</button>
     </span>
     <span hidden id="barDemo">
-        <button class="layui-btn layui-btn-xs" lay-event="visit">访问</button>
         <button class="layui-btn layui-btn-xs" lay-event="edit">编辑</button>
         <button class="layui-btn layui-btn-xs layui-btn-danger" lay-event="delete">删除</button>
     </span>
     <!-- 自定义控件 end-->
 
     <span class="layui-btn-container" id="audiobook_type">
-        <!-- <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_all()">全部</button>-->
+        <button class="layui-btn layui-btn-sm" lay-event="">全部</button>
         <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_xuanhuan()">玄幻</button>
         <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_wuxia()">武侠</button>
         <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_dushi()">都市</button>
@@ -54,125 +53,97 @@
 	<script>
         $ = layui.$;
         audiobookType = "";
-        function setAudiobookType_all(){
-            //audiobookTypeId = "all";
-            audiobookTypeId = "";
-            renderTable();
-        }
         function setAudiobookType_xuanhuan(){
-            //audiobookTypeId = "xuanhuan";
-            audiobookTypeId = 2;
+            audiobookType = "xuanhuan";
             console.log(audiobookType);
             renderTable();
         }
         function setAudiobookType_wuxia(){
-            //audiobookTypeId = "wuxia";
-            audiobookTypeId = 3;
+            audiobookType = "wuxia";
             renderTable();
         }
         function setAudiobookType_dushi(){
-            //audiobookTypeId = "dushi";
-            audiobookTypeId = 4;
+            audiobookType = "dushi";
             renderTable();
         }
         function setAudiobookType_yanqing(){
-            //audiobookTypeId = "yanqing";
-            audiobookTypeId = 5;
+            audiobookType = "yanqing";
             renderTable();
         }
         function setAudiobookType_kehuan(){
-            //audiobookTypeId = "kehuan";
-            audiobookTypeId = 6;
+            audiobookType = "kehuan";
             renderTable();
         }
         function setAudiobookType_tuili(){
-            //audiobookTypeId = "tuili";
-            audiobookTypeId = 7;
+            audiobookType = "tuili";
             renderTable();
         }
         function setAudiobookType_kongbu(){
-            //audiobookTypeId = "kongbu";
-            audiobookTypeId = 8;
+            audiobookType = "kongbu";
             renderTable();
         }
         function setAudiobookType_jingsong(){
-            //audiobookTypeId = "jingsong";
-            audiobookTypeId = 9;
+            audiobookType = "jingsong";
             renderTable();
         }
         function setAudiobookType_lishi(){
-            //audiobookTypeId = "lishi";
-            audiobookTypeId = 10;
+            audiobookType = "lishi";
             renderTable();
         }
         function setAudiobookType_junshi(){
-            //audiobookTypeId = "junshi";
-            audiobookTypeId = 11;
+            audiobookType = "junshi";
             renderTable();
         }
         function setAudiobookType_wangyou(){
-            //audiobookTypeId = "wangyou";
-            audiobookTypeId = 12;
+            audiobookType = "wangyou";
             renderTable();
         }
         function setAudiobookType_guanshang(){
-            //audiobookTypeId = "guanshang";
-            audiobookTypeId = 13;
+            audiobookType = "guanshang";
             renderTable();
         }
         function setAudiobookType_pingshu(){
-            //audiobookTypeId = "pingshu";
-            audiobookTypeId = 14;
+            audiobookType = "pingshu";
             renderTable();
         }
         function setAudiobookType_xiangsheng(){
-            //audiobookTypeId = "xiangsheng";
-            audiobookTypeId = 15;
+            audiobookType = "xiangsheng";
             renderTable();
         }
         function setAudiobookType_wenxue(){
-            //audiobookTypeId = "wenxue";
-            audiobookTypeId = 16;
+            audiobookType = "wenxue";
             renderTable();
         }
         function setAudiobookType_ertong(){
-            //audiobookTypeId = "ertong";
-            audiobookTypeId = 17;
+            audiobookType = "ertong";
             renderTable();
         }
         function setAudiobookType_chuanyue(){
-            //audiobookTypeId = "chuanyue";
-            audiobookTypeId = 18;
+            audiobookType = "chuanyue";
             renderTable();
         }
         function setAudiobookType_yule(){
-            //audiobookTypeId = "yule";
-            audiobookTypeId = 19;
+            audiobookType = "yule";
             renderTable();
         }
         function setAudiobookType_xiaohua(){
-            //audiobookTypeId = "xiaohua";
-            audiobookTypeId = 20;
+            audiobookType = "xiaohua";
             renderTable();
         }
         function setAudiobookType_xiqu(){
-            //audiobookTypeId = "xiqu";
-            audiobookTypeId = 21;
+            audiobookType = "xiqu";
             renderTable();
         }
         function setAudiobookType_baijiajiangtan(){
-            //audiobookTypeId = "baijiajiangtan";
-            audiobookTypeId = 22;
+            audiobookType = "baijiajiangtan";
             renderTable();
         }
         function setAudiobookType_pingshuzhuanqu(){
-            //audiobookTypeId = "pingshuzhuanqu";
-            audiobookTypeId = 23;
+            audiobookType = "pingshuzhuanqu";
             renderTable();
         }
         function setAudiobookType_qita(){
-            //audiobookTypeId = "qita";
-            audiobookTypeId = 1;
+            audiobookType = "qita";
             renderTable();
         }
 
@@ -183,12 +154,12 @@
                 table.render({
                     elem: '#audiobook'
                     //,url: '../static/json/test_plan.json'  // 获取本地数据
-                    ,url: '/audiobook?typeid=' + audiobookTypeId  // 获取本地数据
+                    ,url: '/audiobook/' + audiobookType  // 获取本地数据
                     ,toolbar: '#toolbarDemo'  // 开启头部工具栏，并为其绑定模板id toolbarDemo
                     , defaultToolbar: ['filter', 'exports', 'print']  // 自定义头部工具栏右侧显示哪些图标
                     ,cols:[[
                         {checkbox: true, fixed: 'left'},
-                        {title: '操作', toolbar: '#barDemo', width: 170},
+                        {title: '操作', toolbar: '#barDemo', width: 120},
                         {field: 'id', title: 'id'},
                         {field: 'name', title: '名称', width: 110},
                         {field: 'traditional_name', title: '繁体书名'},
@@ -266,14 +237,6 @@
                         layer.confirm('真的修改吗？', function () {
                             layer.msg('修改成功')
                         })*/
-                    }else if(obj.event === 'visit'){
-                        // 1. 获取选中行数据
-                        //layer.alert(JSON.stringify(obj.data));
-                        rowdatastr = JSON.stringify(obj.data);
-                        rowdataobj = JSON.parse(rowdatastr); // { }类型
-                        rowurl = rowdataobj.url;
-                        // 2. 打开url
-                        window.open("/audiobook/chapter.html", "_blank")
                     }
                 });
 

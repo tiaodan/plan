@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>百家讲坛有声小说</title>
+	<title>章节</title>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -22,159 +22,14 @@
     </span>
     <!-- 自定义控件 end-->
 
-    <span class="layui-btn-container" id="audiobook_type">
-        <!-- <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_all()">全部</button>-->
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_xuanhuan()">玄幻</button>
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_wuxia()">武侠</button>
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_dushi()">都市</button>
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_yanqing()">言情</button>
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_kehuan()">科幻</button>
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_tuili()">推理</button>
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_kongbu()">恐怖</button>
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_jingsong()">惊悚</button>
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_lishi()">历史</button>
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_junshi()">军事</button>
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_wangyou()">网游</button>
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_guanshang()">官商</button>
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_pingshu()">评书</button>
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_xiangsheng()">相声</button>
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_wenxue()">文学</button>
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_ertong()">儿童</button>
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_chuanyue()">穿越</button>
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_yule()">娱乐</button>
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_xiaohua()">笑话</button>
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_xiqu()">戏曲</button>
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_baijiajiangtan()">百家讲坛</button>
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_pingshuzhuanqu()">评书专区</button>
-        <button class="layui-btn layui-btn-sm" lay-event="" onclick="setAudiobookType_qita()">其它</button>
-    </span>
-	<table id="audiobook" lay-filter="audiobook"></table>
+    <ul>
+        <li></li>
+    </ul>
+
 
 	<script type="text/javascript" src="../static/lib/layui/layui.js"></script>
 	<script>
         $ = layui.$;
-        audiobookType = "";
-        function setAudiobookType_all(){
-            //audiobookTypeId = "all";
-            audiobookTypeId = "";
-            renderTable();
-        }
-        function setAudiobookType_xuanhuan(){
-            //audiobookTypeId = "xuanhuan";
-            audiobookTypeId = 2;
-            console.log(audiobookType);
-            renderTable();
-        }
-        function setAudiobookType_wuxia(){
-            //audiobookTypeId = "wuxia";
-            audiobookTypeId = 3;
-            renderTable();
-        }
-        function setAudiobookType_dushi(){
-            //audiobookTypeId = "dushi";
-            audiobookTypeId = 4;
-            renderTable();
-        }
-        function setAudiobookType_yanqing(){
-            //audiobookTypeId = "yanqing";
-            audiobookTypeId = 5;
-            renderTable();
-        }
-        function setAudiobookType_kehuan(){
-            //audiobookTypeId = "kehuan";
-            audiobookTypeId = 6;
-            renderTable();
-        }
-        function setAudiobookType_tuili(){
-            //audiobookTypeId = "tuili";
-            audiobookTypeId = 7;
-            renderTable();
-        }
-        function setAudiobookType_kongbu(){
-            //audiobookTypeId = "kongbu";
-            audiobookTypeId = 8;
-            renderTable();
-        }
-        function setAudiobookType_jingsong(){
-            //audiobookTypeId = "jingsong";
-            audiobookTypeId = 9;
-            renderTable();
-        }
-        function setAudiobookType_lishi(){
-            //audiobookTypeId = "lishi";
-            audiobookTypeId = 10;
-            renderTable();
-        }
-        function setAudiobookType_junshi(){
-            //audiobookTypeId = "junshi";
-            audiobookTypeId = 11;
-            renderTable();
-        }
-        function setAudiobookType_wangyou(){
-            //audiobookTypeId = "wangyou";
-            audiobookTypeId = 12;
-            renderTable();
-        }
-        function setAudiobookType_guanshang(){
-            //audiobookTypeId = "guanshang";
-            audiobookTypeId = 13;
-            renderTable();
-        }
-        function setAudiobookType_pingshu(){
-            //audiobookTypeId = "pingshu";
-            audiobookTypeId = 14;
-            renderTable();
-        }
-        function setAudiobookType_xiangsheng(){
-            //audiobookTypeId = "xiangsheng";
-            audiobookTypeId = 15;
-            renderTable();
-        }
-        function setAudiobookType_wenxue(){
-            //audiobookTypeId = "wenxue";
-            audiobookTypeId = 16;
-            renderTable();
-        }
-        function setAudiobookType_ertong(){
-            //audiobookTypeId = "ertong";
-            audiobookTypeId = 17;
-            renderTable();
-        }
-        function setAudiobookType_chuanyue(){
-            //audiobookTypeId = "chuanyue";
-            audiobookTypeId = 18;
-            renderTable();
-        }
-        function setAudiobookType_yule(){
-            //audiobookTypeId = "yule";
-            audiobookTypeId = 19;
-            renderTable();
-        }
-        function setAudiobookType_xiaohua(){
-            //audiobookTypeId = "xiaohua";
-            audiobookTypeId = 20;
-            renderTable();
-        }
-        function setAudiobookType_xiqu(){
-            //audiobookTypeId = "xiqu";
-            audiobookTypeId = 21;
-            renderTable();
-        }
-        function setAudiobookType_baijiajiangtan(){
-            //audiobookTypeId = "baijiajiangtan";
-            audiobookTypeId = 22;
-            renderTable();
-        }
-        function setAudiobookType_pingshuzhuanqu(){
-            //audiobookTypeId = "pingshuzhuanqu";
-            audiobookTypeId = 23;
-            renderTable();
-        }
-        function setAudiobookType_qita(){
-            //audiobookTypeId = "qita";
-            audiobookTypeId = 1;
-            renderTable();
-        }
 
         function renderTable(){
             layui.use('table', function(){
@@ -183,7 +38,7 @@
                 table.render({
                     elem: '#audiobook'
                     //,url: '../static/json/test_plan.json'  // 获取本地数据
-                    ,url: '/audiobook?typeid=' + audiobookTypeId  // 获取本地数据
+                    ,url: '/audiobook/' + audiobookType  // 获取本地数据
                     ,toolbar: '#toolbarDemo'  // 开启头部工具栏，并为其绑定模板id toolbarDemo
                     , defaultToolbar: ['filter', 'exports', 'print']  // 自定义头部工具栏右侧显示哪些图标
                     ,cols:[[
@@ -273,7 +128,7 @@
                         rowdataobj = JSON.parse(rowdatastr); // { }类型
                         rowurl = rowdataobj.url;
                         // 2. 打开url
-                        window.open("/audiobook/chapter.html", "_blank")
+                        window.open(rowurl, "_blank")
                     }
                 });
 
