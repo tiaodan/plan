@@ -11,4 +11,9 @@ def mkdir(path):
         os.makedirs(path)
 
 # mkdir("C:/home1/haha/11/22")
-print('A B '.strip())
+# print('A B '.strip())
+heihei = "heihei111111"
+haha = f"""
+    {heihei}
+"""
+print(haha)

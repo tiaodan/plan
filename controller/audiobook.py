@@ -727,7 +727,7 @@ def checkis_done_spider_chapters_medias():
     # 循环:
     # 1. 从数据库取10条未下载 的 chapter 的url, -->插入线程池 -->过60秒检测-->任务都做完了,就再加10条任务-->任务没做完,过60秒继续检查
     all_task = []
-    default_task_num = 100  # 默认添加几个任务 40
+    default_task_num = 400  # 默认添加几个任务 40
     # default_task_num = 2  # 默认添加几个任务 20
     default_loop_time = 10  # 默认轮询时间,查询是否任务列表空了 10
     while True:
@@ -955,11 +955,8 @@ def query(query_sql, query_values=None):
         "data": []
     })
 
-    # 查询总数
-    total = dbutil.execute_project('audiobook', 'select count(id) from audiobook')[0][0]
-    result['count'] = total
-
     result_tuple = dbutil.execute_project('audiobook', query_sql, query_values)  # tuple类型
+    result['count'] = len(result_tuple)  # 查询总数
     for row in result_tuple:
         # print('每行返回结果type==', type(row), row)  # tuple
         data = dict()
@@ -988,7 +985,55 @@ def query(query_sql, query_values=None):
         data['release_date'] = row[22]
         data['last_update_date'] = row[23]
         data['update_to_chapter'] = row[24]
-        data['download_status'] = row[25]
+        data['spider_status'] = row[25]
+        data['download_status'] = row[26]
+
+        result['data'].append(data)
+
+    result['code'] = 200
+    if result['code'] == 200:
+        result['msg'] = 'success'
+    else:
+        result['msg'] = 'fail'
+    return result
+
+
+# 查chapter
+def query_chapter(query_sql, query_values=None):
+    """
+    方法: 查询 章节
+    :param query_sql:
+    :param query_values:
+    :return:
+    """
+    # print('query_chapter func....')
+    # 1. 定义返回json类型
+    result = dict()
+    result.update({
+        "code": 0,
+        "msg": "",
+        "count": 0,
+        "data": []
+    })
+
+    # print('query_chapter,sql=', query_sql)
+    result_tuple = dbutil.execute_project('audiobook', query_sql, query_values)  # tuple类型
+    result['count'] = len(result_tuple)
+    for row in result_tuple:
+        # print('每行返回结果type==', type(row), row)  # tuple
+        data = dict()
+        data['id'] = row[0]
+        data['chapter_num'] = row[1]
+        data['name'] = row[2]
+        data['traditional_name'] = row[3]
+        data['url'] = row[4]
+        data['media_url'] = row[5]
+        data['audiobookid'] = row[6]
+        data['audiobookname'] = row[7]
+        data['release_date'] = row[8]
+        data['last_update_date'] = row[9]
+        data['spider_status'] = row[10]
+        data['download_status'] = row[11]
 
         result['data'].append(data)
 

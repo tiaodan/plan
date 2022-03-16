@@ -6,153 +6,95 @@
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-	<link rel="stylesheet" href="../static/lib/layui/css/layui.css">
+    <style>
+        #chapter {
+            /*padding-left: 100px;*/
+        }
+        #chapter li{
+            float: left;
+            padding-left: 10px;
+            list-style-type: none;
+        }
+        #chapter a{
+            float: left;
+            padding-left: 10px;
+        }
+    </style>
 </head>
 <body>
-    <!-- 自定义控件 start-->
-    <span class="layui-btn-container" id="toolbarDemo" hidden>
-        <button class="layui-btn layui-btn-sm" lay-event="getCheckData">获取选中行数据</button>
-        <button class="layui-btn layui-btn-sm" lay-event="getCheckLength">获取选中行数目</button>
-        <button class="layui-btn layui-btn-sm" lay-event="isAll">验证是否全选</button>
-    </span>
-    <span hidden id="barDemo">
-        <button class="layui-btn layui-btn-xs" lay-event="visit">访问</button>
-        <button class="layui-btn layui-btn-xs" lay-event="edit">编辑</button>
-        <button class="layui-btn layui-btn-xs layui-btn-danger" lay-event="delete">删除</button>
-    </span>
-    <!-- 自定义控件 end-->
+    <audio id="chapterMedia" controls src="http://audio.xmcdn.com/group22/M01/2B/A1/wKgJM1hsjq_yQeNpAZGe1fomeU8825.m4a" hidden></audio>
 
-    <ul>
-        <li></li>
+    <ul id="chapter">
+        <!--<li><a id="chapterList" onclick="setMedia('arg1', 'arg2')">第几章</a></li>-->
     </ul>
 
+    <script src="../../static/lib/jquery-3.2.1.min.js"></script>
+    <script src="../../static/lib/layui/layui.js"></script>
+    <script>
+        function getQueryString(name) {
+            let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+            let r = window.location.search.substr(1).match(reg);
+            if (r != null) {
+                return decodeURIComponent(r[2]);
+            }
+            return null;
+         }
 
-	<script type="text/javascript" src="../static/lib/layui/layui.js"></script>
-	<script>
-        $ = layui.$;
 
-        function renderTable(){
-            layui.use('table', function(){
-                var table = layui.table;
+        // 获取audibook id
+        audiobookid = getQueryString("audiobookid");
+        console.log("audiobookid=" + audiobookid);
 
-                table.render({
-                    elem: '#audiobook'
-                    //,url: '../static/json/test_plan.json'  // 获取本地数据
-                    ,url: '/audiobook/' + audiobookType  // 获取本地数据
-                    ,toolbar: '#toolbarDemo'  // 开启头部工具栏，并为其绑定模板id toolbarDemo
-                    , defaultToolbar: ['filter', 'exports', 'print']  // 自定义头部工具栏右侧显示哪些图标
-                    ,cols:[[
-                        {checkbox: true, fixed: 'left'},
-                        {title: '操作', toolbar: '#barDemo', width: 170},
-                        {field: 'id', title: 'id'},
-                        {field: 'name', title: '名称', width: 110},
-                        {field: 'traditional_name', title: '繁体书名'},
-                        {field: 'url', title: 'url'},
-                        {field: 'typeid', title: 'typeid'},
-                        {field: 'type', title: '类型'},
-                        {field: 'countryid', title: 'countryid'},
-                        {field: 'country', title: '国家'},
-                        {field: 'processid', title: 'processid'},
-                        {field: 'process', title: '进度'},
-                        {field: 'websiteid', title: 'websiteid'},
-                        {field: 'website', title: '来源网站'},
-                        {field: 'alias', title: '别名'},
-                        {field: 'author', title: '作者'},
-                        {field: 'reader', title: '播音'},
-                        {field: 'brief', title: '简介'},
-                        {field: 'is_for_adult', title: '是否成人内容'},
-                        {field: 'score', title: '评分'},
-                        {field: 'total_chapter', title: '总章节数'},
-                        {field: 'cover_photo_url', title: '封面图片链接'},
-                        {#{field: 'cover_photo_savepath', title: '封面图片下载路径'},#}
-                        {field: 'hits', title: '点击量'},
-                        {#{field: 'release_date', title: '发布日期'},#}
-                        {#{field: 'last_update_date', title: '最后更新时间'},#}
-                        {#{field: 'update_to_chapter', title: '最新章节'},#}
-                        {field: 'download_status', title: '下载状态'}
-                    ]]
-                    ,page: true
-                    ,response: {
-                        statusCode: 200  //规定成功的状态码
-                    }
-                    ,height: 'full-60'  // 表格容器距离浏览器顶部和底部的距离“和”
-                    ,even: true  // 隔行背景
-                    ,size: 'sm'  // 小尺寸的表格
-                    {#,cellMinWidth: 80 // 全局定义单元格最小宽度#}
-                });
 
-                //监听行工具事件
-                table.on('tool(audiobook)', function (obj) {
-                    var data = obj.data;
-                    if(obj.event === 'delete'){
-                        layer.confirm('真的删除行吗？', function (index) {
-                            // 1. 获取选中行数据
-                            rowdatastr = JSON.stringify(obj.data);
-                            rowdataobj = JSON.parse(rowdatastr); // { }类型
+        // 1. 获取请求数据
+        $.ajax({
+            type: 'get',
+            url: '/audiobook/chapter',
+            async: false,
+            datatype: 'json',
+            data: {"audiobookid": audiobookid},  // obj类型的 { } 键值对
+            success: function (data) {
+                console.log(data);
+                if(data.code == 200){
+                    console.log("返回值是200");
 
-                            // 2. 请求后台接口
-                            $.ajax({
-                               type: 'delete',
-                               url: '/audiobook/' + audiobookType,
-                               datatype: 'json',
-                               data: rowdataobj  // obj类型的 { } 键值对
-                            });
-                            // 3. ui删除改行
-                            obj.del();
-                            layer.close(index)
+                    var objChapter = document.getElementById("chapter");
+                    // 2. 渲染 html
+                    for(var i=0;i<data.count;i++){
+                        let chapterName=data.data[i]["chapter_num"];
+                        let media_url = data.data[i]["media_url"];
+                        let url = data.data[i]["url"];
+                        let audiobookName = data.data[i]["audiobookname"];
+                        //document.getElementById("chapter").innerHTML += "<li style='list-style-type: none'><a href='" + media_url + "' target='_blank'>第" + chapterName + "章</a></li>";
+                        //document.getElementById("chapter").innerHTML += "<li style='list-style-type: none'><a href='javascript:void(0);' onclick='setMedia(" + media_url +", " + url +")'>第" + chapterName + "章</a></li>";
+
+                        //设置点击事件,仅当media_url 不为空的时候,才可以显示播放的框
+                        let liElement = document.createElement("a");
+                        liElement.addEventListener("click", function () {
+                            setMedia(media_url, url, audiobookName, chapterName);
                         });
-                    }else if(obj.event === 'edit'){
-                        // 1. 获取选中行数据
-                        //layer.alert(JSON.stringify(obj.data));
-                        rowdatastr = JSON.stringify(obj.data);
-                        rowdataobj = JSON.parse(rowdatastr); // { }类型
-                        // 2. 请求后台接口
-                        $.ajax({
-                            type: 'post',
-                            url: '/audiobook/' + audiobookType,
-                            datatype: 'json',
-                            data: rowdataobj  // obj类型的 { } 键值对
-                        });
-                        layer.msg('修改成功')
-                        /*
-                        var checkStatus = table.checkStatus(obj.config.id);
-                        var data = checkStatus.data;
-                        layer.msg(JSON.stringify(data));
-                        layer.confirm('真的修改吗？', function () {
-                            layer.msg('修改成功')
-                        })*/
-                    }else if(obj.event === 'visit'){
-                        // 1. 获取选中行数据
-                        //layer.alert(JSON.stringify(obj.data));
-                        rowdatastr = JSON.stringify(obj.data);
-                        rowdataobj = JSON.parse(rowdatastr); // { }类型
-                        rowurl = rowdataobj.url;
-                        // 2. 打开url
-                        window.open(rowurl, "_blank")
+                        liElement.text = "第"+ chapterName.toString() +"章";
+                        objChapter.appendChild(liElement);
                     }
-                });
+                }
+            }
+        });
 
-                // 监听头工具栏事件
-                table.on('toolbar(audiobook)', function (obj) {
-                    var checkStatus = table.checkStatus(obj.config.id);
-                    switch(obj.event){
-                        case 'getCheckData':  // 获取选中行数据
-                            var data = checkStatus.data;  // [{},{},{}] 这种类型的数据
-                            layer.msg(JSON.stringify(data));
-                            layer.alert(JSON.stringify(data));
-                        break;
-                        case 'getCheckLength':
-                            var data = checkStatus.data;  // [{},{},{}] 这种类型的数据
-                            layer.msg('选中了：' + data.length + '个');
-                        break;
-                        case 'isAll':
-                            layer.msg(checkStatus.isAll ? '全选': '未全选');
-                        break;
-                    }
-                });
-
-            });
+        // 设置页面媒体框
+        // arg1: media_url 音频url
+        // arg2: url 音频来源网站url
+        // arg3: audiobookName 有声书名称
+        // arg4: chapterNum 章节号码
+        function setMedia(media_url, url, audiobookName, chapterNum){
+            if("" == media_url){
+                layer.msg('音频url 是空,请访问来源网站听取 '+ url);
+            }else{
+                layer.msg('音频url  '+ media_url);
+                document.getElementById("chapterMedia").hidden = false;
+                document.getElementById("chapterMedia").src = media_url;
+                document.title = audiobookName + chapterNum.toString();
+            }
         }
-	</script>
+    </script>
 </body>
 </html>

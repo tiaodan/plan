@@ -617,6 +617,66 @@ def interface_audiobook():
         return result  # 必须加return
 
 
+@app.route('/audiobook/chapter', methods=('GET', 'POST', 'DELETE'))
+def interface_audiobook_chapter():
+    """
+    接口: 获取有声书 的章节信息
+    :return:
+    """
+    resultjson = {
+        "code": 500,
+        "msg": "",
+        "count": 0,
+        "data": []
+    }
+    # 获取数据
+    if request.method == 'GET':
+        print('前端调用接口[GET]，/audiobook/chapter')
+        # 1. 获取请求参数
+        audiobookid = int(request.values.get('audiobookid'))  # str -->int
+
+        # 2. 数据库查询数据
+        sql = f"select id,chapter_num,name,traditional_name,url,media_url,audiobookid,audiobookname,release_date,last_update_date,spider_status,download_status  from chapter where audiobookid={audiobookid}"
+        result = audiobook.query_chapter(sql)
+
+        return result  # 必须加return
+
+
+@app.route('/audiobook/search', methods=('GET', 'POST', 'DELETE'))
+def interface_audiobook_search():
+    """
+    接口: 搜索有声书,搜素条件书名/作者/播音
+    :return:
+    """
+    resultjson = {
+        "code": 500,
+        "msg": "",
+        "count": 0,
+        "data": []
+    }
+    # 获取数据
+    if request.method == 'GET':
+        print('前端调用接口[GET]，/audiobook/search')
+        # 1. 获取请求参数
+        searchContext = request.values.get('searchContext')  # 搜索内容 书名/作者/播音
+        print('searchContext====', searchContext)
+        # page = int(request.values.get('page'))  # 搜索内容 书名/作者/播音
+        # limit = int(request.values.get('limit'))  # 搜索内容 书名/作者/播音
+
+        # 2. 数据库查询数据
+        sql = f"""
+            select id, name, traditional_name, url, typeid, type, countryid, country, processid, process, websiteid, website,
+            alias, author, reader, brief, is_for_adult, score, total_chapter, cover_photo_url, cover_photo_savepath,
+            hits, release_date, last_update_date, update_to_chapter, spider_status, download_status from audiobook
+            where name like '%{searchContext}%' or traditional_name like '%{searchContext}%' or author like '%{searchContext}%' or reader like '%{searchContext}%'
+        """
+        # limit {(page-1) * limit}, {limit}
+        result = audiobook.query(sql)
+        # print('搜索书名 返回数据====', result)
+
+        return result  # 必须加return
+
+
 @app.route('/audiobook/chapter.html')
 def view_audiobook_chapter():
     return render_template('/audiobook/chapter.html')
@@ -1626,8 +1686,8 @@ def view_test():
     # return render_template('/audiobook/test.html')
 
 
-@app.route('/audiobook_chapter', methods=('GET', 'POST', 'DELETE'))
-def interface_audiobook_chapter():
+@app.route('/spider_chapter', methods=('GET', 'POST', 'DELETE'))
+def spider_audiobook_chapter():
     # 思路:
     # 循环:
     # 1. 从数据库取10条未爬取的book的url, -->插入线程池 -->过60秒检测-->任务都做完了,就再加10条任务-->任务没做完,过60秒继续检查
